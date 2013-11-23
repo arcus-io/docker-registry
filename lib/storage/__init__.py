@@ -59,6 +59,14 @@ class Storage(object):
                                                   namespace,
                                                   repository)
 
+    def private_flag_path(self, namespace, repository):
+        return '{0}/{1}/{2}/_private'.format(
+            self.repositories, namespace, repository
+        )
+
+    def is_private(self, namespace, repository):
+        return self.exists(self.private_flag_path(namespace, repository))
+
     def get_content(self, path):
         raise NotImplementedError
 
@@ -128,19 +136,19 @@ def load(kind=None):
     if kind in _storage:
         return _storage[kind]
     if kind == 's3':
-        from s3 import S3Storage
-        store = S3Storage(cfg)
+        import s3
+        store = s3.S3Storage(cfg)
     elif kind == 'local':
         store = LocalStorage(cfg)
     elif kind == 'glance':
-        from glance import GlanceStorage
-        store = GlanceStorage(cfg)
+        import glance
+        store = glance.GlanceStorage(cfg)
     elif kind == 'elliptics':
-        from ellipticsbackend import EllipticsStorage
-        store = EllipticsStorage(cfg)
+        import ellipticsbackend
+        store = ellipticsbackend.EllipticsStorage(cfg)
     elif kind == 'gcs':
-        from gcs import GSStorage
-        store = GSStorage(cfg)
+        import gcs
+        store = gcs.GSStorage(cfg)
     else:
         raise ValueError('Not supported storage \'{0}\''.format(kind))
     _storage[kind] = store
